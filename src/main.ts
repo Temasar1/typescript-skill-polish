@@ -137,4 +137,142 @@ let any: any;
 voidd = any;
 
 //Types as sets
+//Union universal
 
+type unionA = {
+    a: string;
+}
+
+type unionB = {
+    b: string;
+};
+
+type unionAB = unionA | unionB
+const check: unionAB = {a: 'a', b: 'b'} //valid
+
+type unionC = {
+    a: string;
+    b: string;
+};
+
+type UnionABC = unionA & unionC
+const unionABC : UnionABC = {a: 'a', b: 'b'}  //valid
+//const unionABC1: UnionABC = {a: 'a'}  //invalid since we used the and and not the union type
+
+interface ext1 {
+    a: string
+}
+interface ext2 extends ext1 {
+    b : string
+}
+interface ext3 extends ext2 {
+    c: string
+}
+const ext : ext3 = {a: 'a', b: 'b', c: 'c'} 
+
+//type declaration
+type Type = {
+    a: string
+}
+
+const typeDeclare: Type = {
+    a: 'a'
+}
+
+//type assertion with "as" keyword
+type Assertion = {
+    a: string
+}
+const assertion = {
+    a: 'a',
+    b: 'b'
+} as Assertion;  //tells typescript there is more information to provide on this type
+
+type Key<Type> = {
+    [property in keyof Type as `prefix_${string & property}`]: () => Type[property]
+}
+
+type check = {
+    a: string;
+    b: string;
+};
+type key = Key<check> //the type Key<Type> uses a mapped type with a etmplate literal to remap the keys of Type
+//it creates new properties with a 'prefix_' added to each key, and their corresponding values are functions returning original property values
+
+//symbol
+type newSymbol = {
+  [sym: symbol] : number
+}
+const a = Symbol('a')
+const b = Symbol('b')
+let obj: newSymbol = {}
+obj[a] = 123;
+obj[b] = 456;
+
+console.log(obj[a]) //123
+console.log(obj[b]) //456
+
+//arrays
+const array1: string[] = ['a','b'];
+const array2: Array<string> = ['a','b'];
+const array3: Array<string | number> = ['a',1,'b',2];
+
+//readonly arrays
+
+const readArray1: readonly string[] = ['a', 'b'];
+const readArray2: ReadonlyArray<string> = ['a','b'];
+const readArray3: ReadonlyArray<string | number> = ['a', 1, 'b', 2];
+
+//readArray1.push('a') //invalid
+
+const tuple: [string, number] = ['a', 1];
+const readTuple: readonly [string, number] = ['1', 1];
+
+//index signatiures
+
+type index = {
+    [name: string | number]: string;
+};
+const index_i : index = {'a': 'a', 1: '1'}
+console.log(index_i['1']) // '1'
+console.log(index_i[1]) // '1'
+
+
+//Enums - an enum is a set of named constant values
+enum Color {
+    Red = 'Red color',
+    Green = 'Green color',
+    Blue = 'Blue color'
+}
+
+//Numeric Enums
+enum Size {
+    small,  //value starts from zero
+    Meduim,
+    Large,
+}
+
+enum Size_i {
+    Small = 10,
+    Medium,
+    Large
+}
+console.log(Size_i.Medium); //11
+
+//string enums
+enum Language {
+    English = 'EN',
+    Spanish = 'ES',
+}
+
+//reverse mapping - getting the enum member from it;s value
+enum Grade {
+    A = 90,
+    B = 80,
+    C = 70,
+    F = 'fail',
+}
+
+const myGrade = Grade.A;
+console.log(Grade[myGrade]) // A
+console.log(Grade[80]) // B
