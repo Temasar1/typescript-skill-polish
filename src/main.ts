@@ -276,3 +276,190 @@ enum Grade {
 const myGrade = Grade.A;
 console.log(Grade[myGrade]) // A
 console.log(Grade[80]) // B
+
+//Narrowing
+// The process of refining the type of a variable within a conditional block.
+
+//typeof type guards
+
+const fn = (x: number | string) => {
+     if(typeof x === 'number'){
+        return x + 1;
+     }
+     return -1;
+}
+
+const toUpperCase = (name: string | null) => {
+    if(name) {
+        return name.toUpperCase();
+    } else {
+        return null
+    }
+};
+
+//in operator
+//The in operator is a way to narroe the type of a variable based on whether a property exist within the variable
+
+type Dog = {
+    name: string;
+    breed: string;
+}
+
+type Cat = {
+    name: String;
+    likesCream: boolean;
+}
+
+const getAnimalType = (pet: Dog | Cat) => {
+    if('breed' in pet){
+        return 'Dog'
+    } else {
+        return 'Cat'
+    }
+}
+
+//Instanceof narrowing
+//check if an object is an instance of a class or interface
+
+class Square {
+    constructor(public width: number){}
+}
+class Rectangle {
+    constructor(public width: number,
+        public height: number
+    ){}
+}
+
+const area = (shape: Square | Rectangle) => {
+    if(shape instanceof Square){
+        return shape.width * shape.width;
+    } else {
+        return shape.height * shape.width;
+    }
+}
+
+const square = new Square(20);
+const rectangle = new Rectangle(10,20);
+
+console.log(area(square))
+console.log(area(rectangle))
+
+//control flow analysis
+
+const f1 = (x: unknown) => {
+  const isString = typeof x === 'string'
+  if(isString) x.length
+};
+
+const f2 = (
+    obj: {
+        kind: 'foo',
+        foo: string
+    } | 
+    {
+        kind: 'bar',
+        bar: number
+    }
+) => {
+    const isFoo = obj.kind === 'foo';
+    if(isFoo) {
+        obj.foo;
+    } else {
+        obj.bar
+    }
+}
+
+
+const isString = (v: unknown): v is string => typeof v === 'string';
+
+const foo = (bar: unknown) => {
+ if(isString(bar)){ console.log(bar.toUpperCase())} else console.log('not a string')
+} 
+
+type square = {
+    kind: 'square'  //type discriminant
+    size: number;
+}
+
+type circle = {
+    kind: 'circle'; //type discriminant
+    radius: number;
+};
+
+type Shape = square | circle;
+
+const newArea = (shape: Shape) => {
+     switch (shape.kind) {
+        case 'square':
+        return Math.pow(shape.size, 2);
+        case 'circle':
+        return Math.PI * Math.pow(shape.radius, 2);
+     };
+};
+
+const s_shape: square = {kind: 'square', size: 20};
+const c_shape: circle = {kind: 'circle', radius: 10}
+
+console.log(newArea(s_shape));
+console.log(newArea(c_shape));  
+
+//tuple types - represent an array with a fixed number of elements and their types
+
+type Point = [number, number];
+
+const point: Point = [2,4];
+
+//fixed length tuple
+
+const tu = [10,'hello'] as const 
+//tu.push(2); //Invalid
+
+//Advanced 
+//Mapped types
+//it allows you to create a new types based on an existing type
+//by transforming each property using a mapping function
+//ny mapping existing types you can create new types that represent the same information in a different format 
+
+type MyMappedType<T> = {
+    [p in keyof T]: T[p][]  //Give me the key of the object type passed 'p' and return the value of the object in typed array imagine we have an array new['22'] this returns the value of the key 22 in this case it is just a type 
+}
+
+type MyType = {
+    foo: string;
+    bar: number;
+}
+
+type MyNewType = MyMappedType<MyType>;
+
+//result in a cleaer view but we could achieve this with the use of mapped types and generic
+// type MyNewType = {
+//     foo: string[];
+//     bar: number[];
+// }
+
+const typeImpl: MyNewType = {
+    foo: ['hello', 'world'],
+    bar: [1,2,3,4]
+}
+
+//Mapped types modifiers
+
+// all properties marked as readonly
+type readonly<R> = {readonly [P in keyof R]: R[P] };
+
+//all properties marked as mutable
+type mutable<R> = { -readonly [p in keyof R]: R[p]};
+
+//all marked as optional
+type Mypartial<R> = { [Q in keyof R]: R[Q]};
+
+
+//conditional types - ways to create a type that depends on a condition, where the type created is determined based on the result of the condition
+
+type IsArray<T> = T extends any[] ? true : false //checks if type is an array return type true
+
+const myArray = [1,2,3];
+const myNumber = 26;
+
+type checkTypeArray = IsArray<typeof myArray>; //returns true
+type checkTypeNotArray = IsArray<typeof myNumber>; // returns false 
